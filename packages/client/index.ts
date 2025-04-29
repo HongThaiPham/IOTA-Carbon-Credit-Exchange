@@ -23,8 +23,8 @@ const CREDIT_CARBON_MANAGER_PACKAGE = process.env
   .CREDIT_CARBON_MANAGER_PACKAGE as string;
 const MINTER_PASS_CONFIG_ADDRESS = process.env
   .MINTER_PASS_CONFIG_ADDRESS as string;
-const MINTER_PASS_MANAGER_ADDRESS = process.env
-  .MINTER_PASS_MANAGER_ADDRESS as string;
+const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
+  .CREDIT_TOKEN_MANAGER_ADDRESS as string;
 
 (async () => {
   {
@@ -33,8 +33,8 @@ const MINTER_PASS_MANAGER_ADDRESS = process.env
 
     tx.moveCall({
       package: CREDIT_CARBON_MANAGER_PACKAGE,
-      module: "minter_pass_nft",
-      function: "mint",
+      module: "credit_carbon_manager",
+      function: "issue_minter_pass_nft",
       arguments: [
         tx.object(MINTER_PASS_CONFIG_ADDRESS),
         tx.pure.string(
@@ -48,7 +48,10 @@ const MINTER_PASS_MANAGER_ADDRESS = process.env
       signer: mainKeypair,
       transaction: tx,
     });
-    console.log("minter_pass_nft::mint result: ", result);
+    console.log(
+      "credit_carbon_manager::issue_minter_pass_nft result: ",
+      result
+    );
   }
 
   {
@@ -78,13 +81,16 @@ const MINTER_PASS_MANAGER_ADDRESS = process.env
 
     tx.moveCall({
       package: CREDIT_CARBON_MANAGER_PACKAGE,
-      module: "credit_token",
-      function: "mint",
+      module: "credit_carbon_manager",
+      function: "mint_credit_token",
       arguments: [
-        tx.object(MINTER_PASS_MANAGER_ADDRESS),
+        tx.object(CREDIT_TOKEN_MANAGER_ADDRESS),
         tx.object(firstNft?.data?.objectId!),
         tx.pure.u64(13),
         tx.pure.address(receiverAddress),
+      ],
+      typeArguments: [
+        `${CREDIT_CARBON_MANAGER_PACKAGE}::credit_token::CREDIT_TOKEN`,
       ],
     });
 
@@ -92,6 +98,6 @@ const MINTER_PASS_MANAGER_ADDRESS = process.env
       signer: caller,
       transaction: tx,
     });
-    console.log("credit_token::mint result: ", result);
+    console.log("credit_carbon_manager::mint_credit_token result: ", result);
   }
 })();

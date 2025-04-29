@@ -75,8 +75,8 @@ fun init(otw: MINTER_PASS_NFT, ctx: &mut TxContext) {
     transfer::public_transfer(display, sender(ctx));
 }
 
-public fun mint(
-    config: &mut AppConfig,
+public(package) fun mint(
+    config: &AppConfig,
     image_url: vector<u8>,
     recevier: address,
     ctx: &mut TxContext,

@@ -8,9 +8,9 @@ use iota::url;
 
 public struct CREDIT_TOKEN has drop {}
 
-public struct CreditManager has key {
+public struct CreditManager<phantom T> has key {
     id: UID,
-    treasury_cap: TreasuryCap<CREDIT_TOKEN>,
+    treasury_cap: TreasuryCap<T>,
 }
 
 public struct CarbonCreditMinted has copy, drop {
@@ -38,9 +38,9 @@ fun init(otw: CREDIT_TOKEN, ctx: &mut TxContext) {
     transfer::share_object(CreditManager { id: object::new(ctx), treasury_cap: treasury_cap });
 }
 
-public fun mint(
-    credit_manager: &mut CreditManager,
-    _proof: &mut MinterPassNFT,
+public(package) fun mint<T>(
+    credit_manager: &mut CreditManager<T>,
+    _proof: &MinterPassNFT,
     amount: u64,
     recipient: address,
     ctx: &mut TxContext,
