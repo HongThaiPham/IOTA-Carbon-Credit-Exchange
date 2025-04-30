@@ -1,0 +1,1 @@
+export const MINTER_NFT_TYPE = `${process.env.NEXT_PUBLIC_CREDIT_CARBON_MANAGER_PACKAGE}::minter_pass_nft::MinterPassNFT`

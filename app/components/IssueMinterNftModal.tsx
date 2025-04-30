@@ -33,10 +33,10 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
-const IssueMinterNft = () => {
+const IssueMinterNftModal = () => {
   const [open, setOpen] = React.useState(false);
   const { mutateAsync: issueMinterNft, isPending } = useIssueMinterNft();
-  
+
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,20 +45,17 @@ const IssueMinterNft = () => {
   });
 
   function onSubmit(values: FormSchemaType) {
-    toast.promise(
-      issueMinterNft(values.to),
-      {
-        loading: "Issuing Minter NFT...",
-        success: () => {
-          form.reset();
-          setOpen(false);
-          return `Minter NFT issued to ${values.to}`;
-        },
-        error: (err) => {
-          return `Error issuing Minter NFT: ${err.message}`;
-        },
-      }
-    );
+    toast.promise(issueMinterNft(values.to), {
+      loading: "Issuing Minter NFT...",
+      success: () => {
+        form.reset();
+        setOpen(false);
+        return `Minter NFT issued to ${values.to}`;
+      },
+      error: (err) => {
+        return `Error issuing Minter NFT: ${err.message}`;
+      },
+    });
   }
 
   return (
@@ -95,7 +92,12 @@ const IssueMinterNft = () => {
                 )}
               />
               <Button type="submit" disabled={isPending}>
-                {isPending ? <Loader2 className="mr-2 animate-spin" /> : <SendIcon className="mr-2" />} Issue
+                {isPending ? (
+                  <Loader2 className="mr-2 animate-spin" />
+                ) : (
+                  <SendIcon className="mr-2" />
+                )}{" "}
+                Issue
               </Button>
             </form>
           </Form>
@@ -105,4 +107,4 @@ const IssueMinterNft = () => {
   );
 };
 
-export default IssueMinterNft;
+export default IssueMinterNftModal;
