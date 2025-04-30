@@ -23,6 +23,9 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
+import useIssueMinterNft from "@/hooks/useIssueMinterNft";
+import { toast } from "sonner";
+import { Loader2, SendIcon } from "lucide-react";
 
 const formSchema = z.object({
   to: z.string(),
@@ -31,6 +34,9 @@ const formSchema = z.object({
 type FormSchemaType = z.infer<typeof formSchema>;
 
 const IssueMinterNft = () => {
+  const [open, setOpen] = React.useState(false);
+  const { mutateAsync: issueMinterNft, isPending } = useIssueMinterNft();
+  
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,13 +45,24 @@ const IssueMinterNft = () => {
   });
 
   function onSubmit(values: FormSchemaType) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+    toast.promise(
+      issueMinterNft(values.to),
+      {
+        loading: "Issuing Minter NFT...",
+        success: () => {
+          form.reset();
+          setOpen(false);
+          return `Minter NFT issued to ${values.to}`;
+        },
+        error: (err) => {
+          return `Error issuing Minter NFT: ${err.message}`;
+        },
+      }
+    );
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>Issue Minter NFT</Button>
       </DialogTrigger>
@@ -77,7 +94,9 @@ const IssueMinterNft = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Submit</Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? <Loader2 className="mr-2 animate-spin" /> : <SendIcon className="mr-2" />} Issue
+              </Button>
             </form>
           </Form>
         </div>
