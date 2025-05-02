@@ -1,5 +1,5 @@
 "use client";
-import { MINTER_NFT_TYPE } from "@/lib/contants";
+import { MINTER_NFT_TYPE } from "@/lib/constants";
 import { useCurrentAccount, useIotaClientQuery } from "@iota/dapp-kit";
 import { Loader2 } from "lucide-react";
 import React, { useMemo } from "react";
