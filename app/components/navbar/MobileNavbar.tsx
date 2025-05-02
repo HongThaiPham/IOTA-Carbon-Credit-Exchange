@@ -9,9 +9,10 @@ import {
 import { NAVBAR_ITEMS } from "@/lib/constants";
 import { Menu } from "lucide-react";
 import React, { useState } from "react";
+
+import EndNavbarSection from "./EndNavbarSection";
 import Logo from "../Logo";
 import NavbarItem from "./NavbarItem";
-import EndNavbarSection from "./EndNavbarSection";
 
 const MobileNavbar = ({}) => {
   const [isOpened, setIsOpened] = useState(false);

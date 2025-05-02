@@ -1,6 +1,6 @@
 import React from "react";
-import ThemeToogle from "../ThemeToogle";
 import ConnectWalletButton from "../ConnectWalletButton";
+import ThemeToogle from "../ThemeToogle";
 
 export default function EndNavbarSection() {
   return (

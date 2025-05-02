@@ -1,8 +1,8 @@
 import React from "react";
 import { NAVBAR_ITEMS } from "@/lib/constants";
 import Logo from "../Logo";
-import NavbarItem from "./NavbarItem";
 import EndNavbarSection from "./EndNavbarSection";
+import NavbarItem from "./NavbarItem";
 
 const DesktopNavbar = ({}) => {
   return (
