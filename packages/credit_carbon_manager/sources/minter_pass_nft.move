@@ -20,12 +20,17 @@ public struct MinterPassNFT has key, store {
     description: String,
     creator: address,
     credit_points: u64,
+    minted_amount: u64,
 }
 
 // Struct presenting a module configuration
 public struct AppConfig has key, store {
     id: UID,
     address: address,
+}
+
+public struct CreditPointUpdateCap has key, store {
+    id: UID,
 }
 
 // This is the event that will be emitted when the NFT is minted
@@ -82,6 +87,18 @@ fun init(otw: MINTER_PASS_NFT, ctx: &mut TxContext) {
     transfer::public_transfer(display, sender(ctx));
 }
 
+public(package) fun issue_credit_point_update_cap(
+    config: &AppConfig,
+    receiver: address,
+    ctx: &mut TxContext,
+) {
+    let sender = sender(ctx);
+    assert!(sender == config.address, ENOTADMIN);
+    // Create a new `CreditPointUpdateCap` object and share it
+    let cap = CreditPointUpdateCap { id: object::new(ctx) };
+    transfer::public_transfer(cap, receiver);
+}
+
 public(package) fun mint(
     config: &AppConfig,
     image_url: vector<u8>,
@@ -99,6 +116,7 @@ public(package) fun mint(
         ),
         creator: sender,
         credit_points: 0,
+        minted_amount: 0,
     };
 
     // Emit the `MinterPassNFTMinted` event.
@@ -112,14 +130,13 @@ public(package) fun mint(
     transfer::public_transfer(minter_pass_nft, recevier);
 }
 
-public fun update_credit_points(
+public(package) fun update_credit_points(
+    _: &CreditPointUpdateCap,
     minter_pass_nft: &mut MinterPassNFT,
     credit_points: u64,
-    ctx: &mut TxContext,
+    ctx: &TxContext,
 ) {
     let sender = sender(ctx);
-    assert!(sender == minter_pass_nft.creator, ENOTADMIN);
-    // Update the credit points of the `MinterPassNFT` object.
     minter_pass_nft.credit_points = credit_points;
     // Emit the `MinterPassNFTMinted` event.
     event::emit(CreditPointUpdated {
@@ -127,4 +144,21 @@ public fun update_credit_points(
         updated_by: sender,
         credit_points: credit_points,
     });
+}
+
+public(package) fun update_points_when_mint(minter_pass_nft: &mut MinterPassNFT, amount: u64) {
+    // Update the credit points of the `MinterPassNFT` object.
+    minter_pass_nft.credit_points = minter_pass_nft.credit_points - amount;
+    // Update the minted amount of the `MinterPassNFT` object.
+    minter_pass_nft.minted_amount = minter_pass_nft.minted_amount + amount;
+}
+
+public fun get_credit_points(minter_pass_nft: &MinterPassNFT): u64 {
+    // Return the credit points of the `MinterPassNFT` object.
+    minter_pass_nft.credit_points
+}
+
+public fun get_minted_amount(minter_pass_nft: &MinterPassNFT): u64 {
+    // Return the minted amount of the `MinterPassNFT` object.
+    minter_pass_nft.minted_amount
 }

@@ -14,7 +14,7 @@ public fun issue_minter_pass_nft(
 
 public fun mint_credit_token<T>(
     credit_manager: &mut credit_token::CreditManager<T>,
-    minter_pass_nft: &minter_pass_nft::MinterPassNFT,
+    minter_pass_nft: &mut minter_pass_nft::MinterPassNFT,
     amount: u64,
     recipient: address,
     ctx: &mut TxContext,
@@ -23,9 +23,18 @@ public fun mint_credit_token<T>(
 }
 
 public fun update_credit_points(
+    _: &minter_pass_nft::CreditPointUpdateCap,
     minter_pass_nft: &mut minter_pass_nft::MinterPassNFT,
     credit_points: u64,
     ctx: &mut TxContext,
 ) {
-    minter_pass_nft::update_credit_points(minter_pass_nft, credit_points, ctx);
+    minter_pass_nft::update_credit_points(_, minter_pass_nft, credit_points, ctx);
+}
+
+public fun issue_credit_point_update_cap(
+    config: &minter_pass_nft::AppConfig,
+    receiver: address,
+    ctx: &mut TxContext,
+) {
+    minter_pass_nft::issue_credit_point_update_cap(config, receiver, ctx);
 }
