@@ -19,6 +19,7 @@ public struct MinterPassNFT has key, store {
     image_url: Url,
     description: String,
     creator: address,
+    credit_points: u64,
 }
 
 // Struct presenting a module configuration
@@ -32,6 +33,12 @@ public struct MinterPassNFTMinted has copy, drop {
     object_id: ID,
     creator: address,
     receiver: address,
+}
+
+public struct CreditPointUpdated has copy, drop {
+    object_id: ID,
+    updated_by: address,
+    credit_points: u64,
 }
 
 fun init(otw: MINTER_PASS_NFT, ctx: &mut TxContext) {
@@ -83,7 +90,7 @@ public(package) fun mint(
 ) {
     let sender = sender(ctx);
     assert!(sender == config.address, ENOTADMIN);
-    let artwork_nft = MinterPassNFT {
+    let minter_pass_nft = MinterPassNFT {
         id: object::new(ctx),
         name: utf8(b"Carbon Credit Minter Pass"),
         image_url: url::new_unsafe_from_bytes(image_url),
@@ -91,15 +98,33 @@ public(package) fun mint(
             b"This NFT is a Minter Pass for the Carbon Credit project. It allows the holder to mint carbon credits.",
         ),
         creator: sender,
+        credit_points: 0,
     };
 
     // Emit the `MinterPassNFTMinted` event.
     event::emit(MinterPassNFTMinted {
-        object_id: object::id(&artwork_nft),
+        object_id: object::id(&minter_pass_nft),
         creator: sender,
         receiver: recevier,
     });
 
     // Transfer the `MinterPassNFT` object to the receiver.
-    transfer::public_transfer(artwork_nft, recevier);
+    transfer::public_transfer(minter_pass_nft, recevier);
+}
+
+public fun update_credit_points(
+    minter_pass_nft: &mut MinterPassNFT,
+    credit_points: u64,
+    ctx: &mut TxContext,
+) {
+    let sender = sender(ctx);
+    assert!(sender == minter_pass_nft.creator, ENOTADMIN);
+    // Update the credit points of the `MinterPassNFT` object.
+    minter_pass_nft.credit_points = credit_points;
+    // Emit the `MinterPassNFTMinted` event.
+    event::emit(CreditPointUpdated {
+        object_id: object::id(minter_pass_nft),
+        updated_by: sender,
+        credit_points: credit_points,
+    });
 }

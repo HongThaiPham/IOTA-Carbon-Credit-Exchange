@@ -21,3 +21,11 @@ public fun mint_credit_token<T>(
 ) {
     credit_token::mint(credit_manager, minter_pass_nft, amount, recipient, ctx)
 }
+
+public fun update_credit_points(
+    minter_pass_nft: &mut minter_pass_nft::MinterPassNFT,
+    credit_points: u64,
+    ctx: &mut TxContext,
+) {
+    minter_pass_nft::update_credit_points(minter_pass_nft, credit_points, ctx);
+}

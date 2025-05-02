@@ -100,4 +100,43 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
     });
     console.log("credit_carbon_manager::mint_credit_token result: ", result);
   }
+  {
+    const caller = otherKeypair;
+    const updateUser = otherKeypair;
+    const proof = await iotaClient.getOwnedObjects({
+      owner: updateUser.getPublicKey().toIotaAddress(),
+      filter: {
+        StructType: `${CREDIT_CARBON_MANAGER_PACKAGE}::minter_pass_nft::MinterPassNFT`,
+      },
+    });
+
+    console.log("proof: ", proof);
+
+    if (!proof || proof.data.length === 0) {
+      console.error("No proof found");
+      return;
+    }
+
+    const firstNft = proof.data[0];
+
+    const tx = new Transaction();
+
+    tx.moveCall({
+      package: CREDIT_CARBON_MANAGER_PACKAGE,
+      module: "credit_carbon_manager",
+      function: "update_credit_points",
+      arguments: [
+        // tx.object(CREDIT_TOKEN_MANAGER_ADDRESS),
+        tx.object(firstNft?.data?.objectId!),
+        tx.pure.u64(25),
+      ],
+    });
+
+    const result = await iotaClient.signAndExecuteTransaction({
+      signer: caller,
+      transaction: tx,
+    });
+
+    console.log("credit_carbon_manager::update_credit_points result: ", result);
+  }
 })();
