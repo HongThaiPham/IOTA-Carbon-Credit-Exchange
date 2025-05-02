@@ -82,13 +82,13 @@ const data = {
   navMainSimulator: [
     {
       title: "Web2 Simulator 1",
-      url: "/web2/e074df49-59f4-4eda-a2fe-d6bc687d3d83",
+      url: "/web2/cace65ff-fbba-46ab-814a-71b8f67f40df",
       icon: GlobeIcon,
       isActive: true,
     },
     {
       title: "Web2 Simulator 2",
-      url: "/web2/ee4e4ede-3676-47eb-952a-5d22696559b4",
+      url: "/web2/ede84f08-0de1-4a63-a5d6-ced8e940ade4",
       icon: Globe2Icon,
     },
   ],

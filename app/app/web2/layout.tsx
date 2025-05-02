@@ -17,6 +17,7 @@ export default function Web2Layout({
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "credit-quota" },
         async (payload) => {
+          console.log("Change received!", payload);
           if (payload.new) {
             const { org_id, credit_amount, wallet } = payload.new;
             const message = `Quota updated for ${org_id} to ${credit_amount} with wallet ${wallet}`;

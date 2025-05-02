@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import '@iota/dapp-kit/dist/index.css';
+import "@iota/dapp-kit/dist/index.css";
 import "./globals.css";
 import AppProvider from "@/components/providers/AppProvider";
 import { Toaster } from "@/components/ui/sonner";
@@ -26,12 +26,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AppProvider>{children}
-        <Toaster />
+        <AppProvider>
+          {children}
+          <Toaster />
         </AppProvider>
       </body>
     </html>

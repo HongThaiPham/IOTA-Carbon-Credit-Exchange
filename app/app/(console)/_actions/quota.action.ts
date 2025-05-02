@@ -2,7 +2,6 @@
 import supabaseServer from "@/lib/supabase.server";
 import { decodeIotaPrivateKey } from "@iota/iota-sdk/cryptography";
 import { Transaction } from "@iota/iota-sdk/transactions";
-import { formatAddress } from "@iota/iota-sdk/utils";
 import { Ed25519Keypair } from "@iota/iota-sdk/keypairs/ed25519";
 import { getFullnodeUrl, IotaClient, Network } from "@iota/iota-sdk/client";
 import {
@@ -45,7 +44,7 @@ export async function updateQuotaOnchain(receiver: string, amount: number) {
   }
 
   const proof = await iotaClient.getOwnedObjects({
-    owner: formatAddress(receiver),
+    owner: receiver,
     filter: {
       StructType: MINTER_NFT_TYPE,
     },
@@ -91,7 +90,7 @@ export async function getQuotaItem() {
   const { data, error } = await supabaseServer
     .from("credit-quota")
     .select("*")
-    .or(`mint.is.null, mint.eq.${CARBON_TOKEN_TYPE}`)
+    .eq("mint", CARBON_TOKEN_TYPE)
     .order("org_name", { ascending: true });
 
   if (error) {

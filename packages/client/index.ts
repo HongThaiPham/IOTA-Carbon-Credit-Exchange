@@ -80,7 +80,7 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
   }
 
   {
-    const caller = otherKeypair;
+    const caller = mainKeypair;
     const updateUser = otherKeypair;
 
     const updateCap = await iotaClient.getOwnedObjects({

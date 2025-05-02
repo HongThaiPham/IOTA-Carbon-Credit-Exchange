@@ -56,7 +56,7 @@ const IdentityDataTable = () => {
                   </TableCell>
 
                   <TableCell className="flex justify-end">
-                    {item.credit_amount ?? 0}
+                    {item.credit_amount?.toLocaleString() ?? 0}
                   </TableCell>
                 </TableRow>
               ))}

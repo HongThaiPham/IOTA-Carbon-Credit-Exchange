@@ -1,3 +1,4 @@
+import HistoryTable from "@/components/HistoryTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HistoryIcon } from "lucide-react";
 import React from "react";
@@ -11,7 +12,7 @@ const MintHistory = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* <HistoryTable type="MINT" /> */}
+        <HistoryTable type="MINT" />
       </CardContent>
     </Card>
   );
