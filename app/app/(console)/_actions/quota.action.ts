@@ -7,6 +7,7 @@ import { getFullnodeUrl, IotaClient, Network } from "@iota/iota-sdk/client";
 import {
   CARBON_TOKEN_TYPE,
   CREDIT_CARBON_MANAGER_PACKAGE,
+  CREDIT_CARBON_TABLE_ADDRESS,
   CREDIT_POINT_UPDATE_CAP_TYPE,
   MINTER_NFT_TYPE,
   MINTER_PASS_CONFIG_ADDRESS,
@@ -70,9 +71,10 @@ export async function updateQuotaOnchain(receiver: string, amount: number) {
     module: "credit_carbon_manager",
     function: "update_credit_points",
     arguments: [
-      tx.object(capObjectId),
+      tx.object(CREDIT_CARBON_TABLE_ADDRESS),
       tx.object(nftObjectId),
       tx.pure.u64(amount),
+      tx.object(capObjectId),
     ],
   });
 
@@ -133,6 +135,7 @@ export async function issueMinterRole(to: string) {
     module: "credit_carbon_manager",
     function: "issue_minter_pass_nft",
     arguments: [
+      tx.object(CREDIT_CARBON_TABLE_ADDRESS),
       tx.object(MINTER_PASS_CONFIG_ADDRESS),
       tx.pure.string(
         "https://img.freepik.com/free-vector/hand-drawn-nft-style-ape-illustration_23-2149622021.jpg"

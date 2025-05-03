@@ -1,12 +1,7 @@
-import {
-  getFullnodeUrl,
-  IotaClient,
-  Network,
-  type CoinBalance,
-} from "@iota/iota-sdk/client";
+import { getFullnodeUrl, IotaClient, Network } from "@iota/iota-sdk/client";
 import { decodeIotaPrivateKey } from "@iota/iota-sdk/cryptography";
 import { Ed25519Keypair } from "@iota/iota-sdk/keypairs/ed25519";
-import { Transaction } from "@iota/iota-sdk/transactions";
+import { Inputs, Transaction } from "@iota/iota-sdk/transactions";
 
 const { secretKey } = decodeIotaPrivateKey(process.env.PRIVATE_KEY!);
 const mainKeypair = Ed25519Keypair.fromSecretKey(secretKey);
@@ -25,6 +20,8 @@ const MINTER_PASS_CONFIG_ADDRESS = process.env
   .MINTER_PASS_CONFIG_ADDRESS as string;
 const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
   .CREDIT_TOKEN_MANAGER_ADDRESS as string;
+const CREDIT_CARBON_TABLE_ADDRESS = process.env
+  .CREDIT_CARBON_TABLE_ADDRESS as string;
 
 (async () => {
   {
@@ -36,6 +33,7 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
       module: "credit_carbon_manager",
       function: "issue_minter_pass_nft",
       arguments: [
+        tx.object(CREDIT_CARBON_TABLE_ADDRESS),
         tx.object(MINTER_PASS_CONFIG_ADDRESS),
         tx.pure.string(
           "https://img.freepik.com/free-vector/hand-drawn-nft-style-ape-illustration_23-2149622021.jpg"
@@ -53,9 +51,10 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
       result
     );
   }
+
   {
     const caller = mainKeypair;
-    const receiverAddress = otherKeypair.getPublicKey().toIotaAddress();
+    const receiverAddress = mainKeypair.getPublicKey().toIotaAddress();
     const tx = new Transaction();
 
     tx.moveCall({
@@ -103,7 +102,7 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
       },
     });
 
-    console.log("proof: ", proof);
+    // console.log("proof: ", proof);
 
     if (!proof || proof.data.length === 0) {
       console.error("No proof found");
@@ -119,9 +118,10 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
       module: "credit_carbon_manager",
       function: "update_credit_points",
       arguments: [
-        tx.object(firstCap?.data?.objectId!),
+        tx.object(CREDIT_CARBON_TABLE_ADDRESS),
         tx.object(firstNft?.data?.objectId!),
         tx.pure.u64(25),
+        tx.object(firstCap?.data?.objectId!),
       ],
     });
 
@@ -136,9 +136,7 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
   {
     const caller = otherKeypair;
 
-    const receiverAddress = Ed25519Keypair.generate()
-      .getPublicKey()
-      .toIotaAddress();
+    const receiverAddress = caller.getPublicKey().toIotaAddress();
 
     const proof = await iotaClient.getOwnedObjects({
       owner: caller.getPublicKey().toIotaAddress(),
@@ -147,7 +145,7 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
       },
     });
 
-    console.log("proof: ", proof);
+    // console.log("proof: ", proof);
 
     if (!proof || proof.data.length === 0) {
       console.error("No proof found");
@@ -163,6 +161,7 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
       module: "credit_carbon_manager",
       function: "mint_credit_token",
       arguments: [
+        tx.object(CREDIT_CARBON_TABLE_ADDRESS),
         tx.object(CREDIT_TOKEN_MANAGER_ADDRESS),
         tx.object(firstNft?.data?.objectId!),
         tx.pure.u64(13),
@@ -178,5 +177,87 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
       transaction: tx,
     });
     console.log("credit_carbon_manager::mint_credit_token result: ", result);
+  }
+
+  {
+    const caller = otherKeypair;
+
+    const carbonCoins = await iotaClient.getCoins({
+      owner: caller.getPublicKey().toIotaAddress(),
+      coinType: `${CREDIT_CARBON_MANAGER_PACKAGE}::credit_token::CREDIT_TOKEN`,
+    });
+
+    console.log("carbonCoin: ", carbonCoins);
+    if (!carbonCoins || carbonCoins.data.length === 0) {
+      console.error("No carbon coins found");
+      return;
+    }
+
+    // const [firstCoin, ...remains] = carbonCoins.data;
+
+    const tx = new Transaction();
+
+    // tx.mergeCoins(
+    //   tx.object(
+    //     Inputs.ObjectRef({
+    //       objectId: firstCoin!.coinObjectId,
+    //       version: firstCoin!.version,
+    //       digest: firstCoin!.digest,
+    //     })
+    //   ),
+    //   remains.map((coin) =>
+    //     tx.object(
+    //       Inputs.ObjectRef({
+    //         objectId: coin.coinObjectId,
+    //         version: coin.version,
+    //         digest: coin.digest,
+    //       })
+    //     )
+    //   )
+    // );
+
+    const coinFitBalance = carbonCoins.data.find(
+      (coin) => BigInt(coin.balance) >= BigInt(3)
+    );
+
+    if (!coinFitBalance) {
+      throw new Error("No carbon coins found");
+    }
+
+    const coin = tx.splitCoins(coinFitBalance!.coinObjectId, [
+      tx.pure.u64(BigInt(3)),
+    ]);
+
+    // const coin = tx.splitCoins(
+    //   tx.object(
+    //     Inputs.ObjectRef({
+    //       objectId: firstCoin!.coinObjectId,
+    //       version: firstCoin!.version,
+    //       digest: firstCoin!.digest,
+    //     })
+    //   ),
+    //   [3]
+    // );
+
+    // tx.transferObjects(
+    //   [coin.[0]],
+    //   tx.pure.address(caller.getPublicKey().toIotaAddress())
+    // );
+
+    tx.moveCall({
+      package: CREDIT_CARBON_MANAGER_PACKAGE,
+      module: "credit_carbon_manager",
+      function: "consume_credit_token",
+      arguments: [tx.object(CREDIT_TOKEN_MANAGER_ADDRESS), coin],
+      typeArguments: [
+        `${CREDIT_CARBON_MANAGER_PACKAGE}::credit_token::CREDIT_TOKEN`,
+      ],
+    });
+
+    const result = await iotaClient.signAndExecuteTransaction({
+      signer: caller,
+      transaction: tx,
+    });
+    console.log("credit_carbon_manager::consume_credit_token result: ", result);
   }
 })();
