@@ -25,6 +25,8 @@ const MINTER_PASS_CONFIG_ADDRESS = process.env
   .MINTER_PASS_CONFIG_ADDRESS as string;
 const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
   .CREDIT_TOKEN_MANAGER_ADDRESS as string;
+const CREDIT_CARBON_TABLE_ADDRESS = process.env
+  .CREDIT_CARBON_TABLE_ADDRESS as string;
 
 (async () => {
   {
@@ -36,6 +38,7 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
       module: "credit_carbon_manager",
       function: "issue_minter_pass_nft",
       arguments: [
+        tx.object(CREDIT_CARBON_TABLE_ADDRESS),
         tx.object(MINTER_PASS_CONFIG_ADDRESS),
         tx.pure.string(
           "https://img.freepik.com/free-vector/hand-drawn-nft-style-ape-illustration_23-2149622021.jpg"
@@ -53,9 +56,10 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
       result
     );
   }
+
   {
     const caller = mainKeypair;
-    const receiverAddress = otherKeypair.getPublicKey().toIotaAddress();
+    const receiverAddress = mainKeypair.getPublicKey().toIotaAddress();
     const tx = new Transaction();
 
     tx.moveCall({
@@ -103,7 +107,7 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
       },
     });
 
-    console.log("proof: ", proof);
+    // console.log("proof: ", proof);
 
     if (!proof || proof.data.length === 0) {
       console.error("No proof found");
@@ -119,9 +123,10 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
       module: "credit_carbon_manager",
       function: "update_credit_points",
       arguments: [
-        tx.object(firstCap?.data?.objectId!),
+        tx.object(CREDIT_CARBON_TABLE_ADDRESS),
         tx.object(firstNft?.data?.objectId!),
         tx.pure.u64(25),
+        tx.object(firstCap?.data?.objectId!),
       ],
     });
 
@@ -147,7 +152,7 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
       },
     });
 
-    console.log("proof: ", proof);
+    // console.log("proof: ", proof);
 
     if (!proof || proof.data.length === 0) {
       console.error("No proof found");
@@ -163,6 +168,7 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
       module: "credit_carbon_manager",
       function: "mint_credit_token",
       arguments: [
+        tx.object(CREDIT_CARBON_TABLE_ADDRESS),
         tx.object(CREDIT_TOKEN_MANAGER_ADDRESS),
         tx.object(firstNft?.data?.objectId!),
         tx.pure.u64(13),
