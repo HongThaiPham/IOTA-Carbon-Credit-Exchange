@@ -1,10 +1,19 @@
 module credit_carbon_manager::credit_token;
 
-use credit_carbon_manager::minter_pass_nft::MinterPassNFT;
+use credit_carbon_manager::minter_pass_nft::{
+    MinterPassNFT,
+    get_credit_points,
+    update_points_when_mint
+};
 use iota::coin::{Self, TreasuryCap};
 use iota::event;
 use iota::tx_context::sender;
 use iota::url;
+
+#[error]
+const EAMOUNTGT0: vector<u8> = b"Amount must be greater than 0";
+#[error]
+const EINVALIDAMOUNT: vector<u8> = b"Invalid amount";
 
 public struct CREDIT_TOKEN has drop {}
 
@@ -40,12 +49,17 @@ fun init(otw: CREDIT_TOKEN, ctx: &mut TxContext) {
 
 public(package) fun mint<T>(
     credit_manager: &mut CreditManager<T>,
-    _proof: &MinterPassNFT,
+    proof: &mut MinterPassNFT,
     amount: u64,
     recipient: address,
     ctx: &mut TxContext,
 ) {
+    assert!(amount > 0, EAMOUNTGT0);
+    assert!(amount <= get_credit_points(proof), EINVALIDAMOUNT);
+
     let credit = coin::mint(&mut credit_manager.treasury_cap, amount, ctx);
+
+    update_points_when_mint(proof, amount);
 
     event::emit(CarbonCreditMinted {
         minter: sender(ctx),

@@ -53,6 +53,85 @@ const CREDIT_TOKEN_MANAGER_ADDRESS = process.env
       result
     );
   }
+  {
+    const caller = mainKeypair;
+    const receiverAddress = otherKeypair.getPublicKey().toIotaAddress();
+    const tx = new Transaction();
+
+    tx.moveCall({
+      package: CREDIT_CARBON_MANAGER_PACKAGE,
+      module: "credit_carbon_manager",
+      function: "issue_credit_point_update_cap",
+      arguments: [
+        tx.object(MINTER_PASS_CONFIG_ADDRESS),
+        tx.pure.address(receiverAddress),
+      ],
+    });
+
+    const result = await iotaClient.signAndExecuteTransaction({
+      signer: caller,
+      transaction: tx,
+    });
+
+    console.log(
+      "credit_carbon_manager::issue_credit_point_update_cap result: ",
+      result
+    );
+  }
+
+  {
+    const caller = mainKeypair;
+    const updateUser = otherKeypair;
+
+    const updateCap = await iotaClient.getOwnedObjects({
+      owner: caller.getPublicKey().toIotaAddress(),
+      filter: {
+        StructType: `${CREDIT_CARBON_MANAGER_PACKAGE}::minter_pass_nft::CreditPointUpdateCap`,
+      },
+    });
+    if (!updateCap || updateCap.data.length === 0) {
+      console.error("No update cap found");
+      return;
+    }
+
+    const firstCap = updateCap.data[0];
+
+    const proof = await iotaClient.getOwnedObjects({
+      owner: updateUser.getPublicKey().toIotaAddress(),
+      filter: {
+        StructType: `${CREDIT_CARBON_MANAGER_PACKAGE}::minter_pass_nft::MinterPassNFT`,
+      },
+    });
+
+    console.log("proof: ", proof);
+
+    if (!proof || proof.data.length === 0) {
+      console.error("No proof found");
+      return;
+    }
+
+    const firstNft = proof.data[0];
+
+    const tx = new Transaction();
+
+    tx.moveCall({
+      package: CREDIT_CARBON_MANAGER_PACKAGE,
+      module: "credit_carbon_manager",
+      function: "update_credit_points",
+      arguments: [
+        tx.object(firstCap?.data?.objectId!),
+        tx.object(firstNft?.data?.objectId!),
+        tx.pure.u64(25),
+      ],
+    });
+
+    const result = await iotaClient.signAndExecuteTransaction({
+      signer: caller,
+      transaction: tx,
+    });
+
+    console.log("credit_carbon_manager::update_credit_points result: ", result);
+  }
 
   {
     const caller = otherKeypair;

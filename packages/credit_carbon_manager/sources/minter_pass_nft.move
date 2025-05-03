@@ -19,6 +19,8 @@ public struct MinterPassNFT has key, store {
     image_url: Url,
     description: String,
     creator: address,
+    credit_points: u64,
+    minted_amount: u64,
 }
 
 // Struct presenting a module configuration
@@ -27,11 +29,21 @@ public struct AppConfig has key, store {
     address: address,
 }
 
+public struct CreditPointUpdateCap has key, store {
+    id: UID,
+}
+
 // This is the event that will be emitted when the NFT is minted
 public struct MinterPassNFTMinted has copy, drop {
     object_id: ID,
     creator: address,
     receiver: address,
+}
+
+public struct CreditPointUpdated has copy, drop {
+    object_id: ID,
+    updated_by: address,
+    credit_points: u64,
 }
 
 fun init(otw: MINTER_PASS_NFT, ctx: &mut TxContext) {
@@ -75,6 +87,18 @@ fun init(otw: MINTER_PASS_NFT, ctx: &mut TxContext) {
     transfer::public_transfer(display, sender(ctx));
 }
 
+public(package) fun issue_credit_point_update_cap(
+    config: &AppConfig,
+    receiver: address,
+    ctx: &mut TxContext,
+) {
+    let sender = sender(ctx);
+    assert!(sender == config.address, ENOTADMIN);
+    // Create a new `CreditPointUpdateCap` object and share it
+    let cap = CreditPointUpdateCap { id: object::new(ctx) };
+    transfer::public_transfer(cap, receiver);
+}
+
 public(package) fun mint(
     config: &AppConfig,
     image_url: vector<u8>,
@@ -83,7 +107,7 @@ public(package) fun mint(
 ) {
     let sender = sender(ctx);
     assert!(sender == config.address, ENOTADMIN);
-    let artwork_nft = MinterPassNFT {
+    let minter_pass_nft = MinterPassNFT {
         id: object::new(ctx),
         name: utf8(b"Carbon Credit Minter Pass"),
         image_url: url::new_unsafe_from_bytes(image_url),
@@ -91,15 +115,50 @@ public(package) fun mint(
             b"This NFT is a Minter Pass for the Carbon Credit project. It allows the holder to mint carbon credits.",
         ),
         creator: sender,
+        credit_points: 0,
+        minted_amount: 0,
     };
 
     // Emit the `MinterPassNFTMinted` event.
     event::emit(MinterPassNFTMinted {
-        object_id: object::id(&artwork_nft),
+        object_id: object::id(&minter_pass_nft),
         creator: sender,
         receiver: recevier,
     });
 
     // Transfer the `MinterPassNFT` object to the receiver.
-    transfer::public_transfer(artwork_nft, recevier);
+    transfer::public_transfer(minter_pass_nft, recevier);
+}
+
+public(package) fun update_credit_points(
+    _: &CreditPointUpdateCap,
+    minter_pass_nft: &mut MinterPassNFT,
+    credit_points: u64,
+    ctx: &TxContext,
+) {
+    let sender = sender(ctx);
+    minter_pass_nft.credit_points = credit_points;
+    // Emit the `MinterPassNFTMinted` event.
+    event::emit(CreditPointUpdated {
+        object_id: object::id(minter_pass_nft),
+        updated_by: sender,
+        credit_points: credit_points,
+    });
+}
+
+public(package) fun update_points_when_mint(minter_pass_nft: &mut MinterPassNFT, amount: u64) {
+    // Update the credit points of the `MinterPassNFT` object.
+    minter_pass_nft.credit_points = minter_pass_nft.credit_points - amount;
+    // Update the minted amount of the `MinterPassNFT` object.
+    minter_pass_nft.minted_amount = minter_pass_nft.minted_amount + amount;
+}
+
+public fun get_credit_points(minter_pass_nft: &MinterPassNFT): u64 {
+    // Return the credit points of the `MinterPassNFT` object.
+    minter_pass_nft.credit_points
+}
+
+public fun get_minted_amount(minter_pass_nft: &MinterPassNFT): u64 {
+    // Return the minted amount of the `MinterPassNFT` object.
+    minter_pass_nft.minted_amount
 }
