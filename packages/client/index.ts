@@ -30,160 +30,160 @@ const CREDIT_CARBON_TABLE_ADDRESS = process.env
   .CREDIT_CARBON_TABLE_ADDRESS as string;
 
 (async () => {
-  // {
-  //   const receiverAddress = otherKeypair.getPublicKey().toIotaAddress();
-  //   const tx = new Transaction();
+  {
+    const receiverAddress = otherKeypair.getPublicKey().toIotaAddress();
+    const tx = new Transaction();
 
-  //   tx.moveCall({
-  //     package: CREDIT_CARBON_MANAGER_PACKAGE,
-  //     module: "credit_carbon_manager",
-  //     function: "issue_minter_pass_nft",
-  //     arguments: [
-  //       tx.object(CREDIT_CARBON_TABLE_ADDRESS),
-  //       tx.object(MINTER_PASS_CONFIG_ADDRESS),
-  //       tx.pure.string(
-  //         "https://img.freepik.com/free-vector/hand-drawn-nft-style-ape-illustration_23-2149622021.jpg"
-  //       ),
-  //       tx.pure.address(receiverAddress),
-  //     ],
-  //   });
+    tx.moveCall({
+      package: CREDIT_CARBON_MANAGER_PACKAGE,
+      module: "credit_carbon_manager",
+      function: "issue_minter_pass_nft",
+      arguments: [
+        tx.object(CREDIT_CARBON_TABLE_ADDRESS),
+        tx.object(MINTER_PASS_CONFIG_ADDRESS),
+        tx.pure.string(
+          "https://img.freepik.com/free-vector/hand-drawn-nft-style-ape-illustration_23-2149622021.jpg"
+        ),
+        tx.pure.address(receiverAddress),
+      ],
+    });
 
-  //   const result = await iotaClient.signAndExecuteTransaction({
-  //     signer: mainKeypair,
-  //     transaction: tx,
-  //   });
-  //   console.log(
-  //     "credit_carbon_manager::issue_minter_pass_nft result: ",
-  //     result
-  //   );
-  // }
+    const result = await iotaClient.signAndExecuteTransaction({
+      signer: mainKeypair,
+      transaction: tx,
+    });
+    console.log(
+      "credit_carbon_manager::issue_minter_pass_nft result: ",
+      result
+    );
+  }
 
-  // {
-  //   const caller = mainKeypair;
-  //   const receiverAddress = mainKeypair.getPublicKey().toIotaAddress();
-  //   const tx = new Transaction();
+  {
+    const caller = mainKeypair;
+    const receiverAddress = mainKeypair.getPublicKey().toIotaAddress();
+    const tx = new Transaction();
 
-  //   tx.moveCall({
-  //     package: CREDIT_CARBON_MANAGER_PACKAGE,
-  //     module: "credit_carbon_manager",
-  //     function: "issue_credit_point_update_cap",
-  //     arguments: [
-  //       tx.object(MINTER_PASS_CONFIG_ADDRESS),
-  //       tx.pure.address(receiverAddress),
-  //     ],
-  //   });
+    tx.moveCall({
+      package: CREDIT_CARBON_MANAGER_PACKAGE,
+      module: "credit_carbon_manager",
+      function: "issue_credit_point_update_cap",
+      arguments: [
+        tx.object(MINTER_PASS_CONFIG_ADDRESS),
+        tx.pure.address(receiverAddress),
+      ],
+    });
 
-  //   const result = await iotaClient.signAndExecuteTransaction({
-  //     signer: caller,
-  //     transaction: tx,
-  //   });
+    const result = await iotaClient.signAndExecuteTransaction({
+      signer: caller,
+      transaction: tx,
+    });
 
-  //   console.log(
-  //     "credit_carbon_manager::issue_credit_point_update_cap result: ",
-  //     result
-  //   );
-  // }
+    console.log(
+      "credit_carbon_manager::issue_credit_point_update_cap result: ",
+      result
+    );
+  }
 
-  // {
-  //   const caller = mainKeypair;
-  //   const updateUser = otherKeypair;
+  {
+    const caller = mainKeypair;
+    const updateUser = otherKeypair;
 
-  //   const updateCap = await iotaClient.getOwnedObjects({
-  //     owner: caller.getPublicKey().toIotaAddress(),
-  //     filter: {
-  //       StructType: `${CREDIT_CARBON_MANAGER_PACKAGE}::minter_pass_nft::CreditPointUpdateCap`,
-  //     },
-  //   });
-  //   if (!updateCap || updateCap.data.length === 0) {
-  //     console.error("No update cap found");
-  //     return;
-  //   }
+    const updateCap = await iotaClient.getOwnedObjects({
+      owner: caller.getPublicKey().toIotaAddress(),
+      filter: {
+        StructType: `${CREDIT_CARBON_MANAGER_PACKAGE}::minter_pass_nft::CreditPointUpdateCap`,
+      },
+    });
+    if (!updateCap || updateCap.data.length === 0) {
+      console.error("No update cap found");
+      return;
+    }
 
-  //   const firstCap = updateCap.data[0];
+    const firstCap = updateCap.data[0];
 
-  //   const proof = await iotaClient.getOwnedObjects({
-  //     owner: updateUser.getPublicKey().toIotaAddress(),
-  //     filter: {
-  //       StructType: `${CREDIT_CARBON_MANAGER_PACKAGE}::minter_pass_nft::MinterPassNFT`,
-  //     },
-  //   });
+    const proof = await iotaClient.getOwnedObjects({
+      owner: updateUser.getPublicKey().toIotaAddress(),
+      filter: {
+        StructType: `${CREDIT_CARBON_MANAGER_PACKAGE}::minter_pass_nft::MinterPassNFT`,
+      },
+    });
 
-  //   // console.log("proof: ", proof);
+    // console.log("proof: ", proof);
 
-  //   if (!proof || proof.data.length === 0) {
-  //     console.error("No proof found");
-  //     return;
-  //   }
+    if (!proof || proof.data.length === 0) {
+      console.error("No proof found");
+      return;
+    }
 
-  //   const firstNft = proof.data[0];
+    const firstNft = proof.data[0];
 
-  //   const tx = new Transaction();
+    const tx = new Transaction();
 
-  //   tx.moveCall({
-  //     package: CREDIT_CARBON_MANAGER_PACKAGE,
-  //     module: "credit_carbon_manager",
-  //     function: "update_credit_points",
-  //     arguments: [
-  //       tx.object(CREDIT_CARBON_TABLE_ADDRESS),
-  //       tx.object(firstNft?.data?.objectId!),
-  //       tx.pure.u64(25),
-  //       tx.object(firstCap?.data?.objectId!),
-  //     ],
-  //   });
+    tx.moveCall({
+      package: CREDIT_CARBON_MANAGER_PACKAGE,
+      module: "credit_carbon_manager",
+      function: "update_credit_points",
+      arguments: [
+        tx.object(CREDIT_CARBON_TABLE_ADDRESS),
+        tx.object(firstNft?.data?.objectId!),
+        tx.pure.u64(25),
+        tx.object(firstCap?.data?.objectId!),
+      ],
+    });
 
-  //   const result = await iotaClient.signAndExecuteTransaction({
-  //     signer: caller,
-  //     transaction: tx,
-  //   });
+    const result = await iotaClient.signAndExecuteTransaction({
+      signer: caller,
+      transaction: tx,
+    });
 
-  //   console.log("credit_carbon_manager::update_credit_points result: ", result);
-  // }
+    console.log("credit_carbon_manager::update_credit_points result: ", result);
+  }
 
-  // {
-  //   const caller = otherKeypair;
+  {
+    const caller = otherKeypair;
 
-  //   const receiverAddress = caller.getPublicKey().toIotaAddress();
+    const receiverAddress = caller.getPublicKey().toIotaAddress();
 
-  //   const proof = await iotaClient.getOwnedObjects({
-  //     owner: caller.getPublicKey().toIotaAddress(),
-  //     filter: {
-  //       StructType: `${CREDIT_CARBON_MANAGER_PACKAGE}::minter_pass_nft::MinterPassNFT`,
-  //     },
-  //   });
+    const proof = await iotaClient.getOwnedObjects({
+      owner: caller.getPublicKey().toIotaAddress(),
+      filter: {
+        StructType: `${CREDIT_CARBON_MANAGER_PACKAGE}::minter_pass_nft::MinterPassNFT`,
+      },
+    });
 
-  //   // console.log("proof: ", proof);
+    // console.log("proof: ", proof);
 
-  //   if (!proof || proof.data.length === 0) {
-  //     console.error("No proof found");
-  //     return;
-  //   }
+    if (!proof || proof.data.length === 0) {
+      console.error("No proof found");
+      return;
+    }
 
-  //   const firstNft = proof.data[0];
+    const firstNft = proof.data[0];
 
-  //   const tx = new Transaction();
+    const tx = new Transaction();
 
-  //   tx.moveCall({
-  //     package: CREDIT_CARBON_MANAGER_PACKAGE,
-  //     module: "credit_carbon_manager",
-  //     function: "mint_credit_token",
-  //     arguments: [
-  //       tx.object(CREDIT_CARBON_TABLE_ADDRESS),
-  //       tx.object(CREDIT_TOKEN_MANAGER_ADDRESS),
-  //       tx.object(firstNft?.data?.objectId!),
-  //       tx.pure.u64(13),
-  //       tx.pure.address(receiverAddress),
-  //     ],
-  //     typeArguments: [
-  //       `${CREDIT_CARBON_MANAGER_PACKAGE}::credit_token::CREDIT_TOKEN`,
-  //     ],
-  //   });
+    tx.moveCall({
+      package: CREDIT_CARBON_MANAGER_PACKAGE,
+      module: "credit_carbon_manager",
+      function: "mint_credit_token",
+      arguments: [
+        tx.object(CREDIT_CARBON_TABLE_ADDRESS),
+        tx.object(CREDIT_TOKEN_MANAGER_ADDRESS),
+        tx.object(firstNft?.data?.objectId!),
+        tx.pure.u64(13),
+        tx.pure.address(receiverAddress),
+      ],
+      typeArguments: [
+        `${CREDIT_CARBON_MANAGER_PACKAGE}::credit_token::CREDIT_TOKEN`,
+      ],
+    });
 
-  //   const result = await iotaClient.signAndExecuteTransaction({
-  //     signer: caller,
-  //     transaction: tx,
-  //   });
-  //   console.log("credit_carbon_manager::mint_credit_token result: ", result);
-  // }
+    const result = await iotaClient.signAndExecuteTransaction({
+      signer: caller,
+      transaction: tx,
+    });
+    console.log("credit_carbon_manager::mint_credit_token result: ", result);
+  }
 
   {
     const caller = otherKeypair;
@@ -261,6 +261,6 @@ const CREDIT_CARBON_TABLE_ADDRESS = process.env
       signer: caller,
       transaction: tx,
     });
-    console.log("credit_carbon_manager::mint_credit_token result: ", result);
+    console.log("credit_carbon_manager::consume_credit_token result: ", result);
   }
 })();

@@ -1,5 +1,6 @@
 module credit_carbon_manager::credit_carbon_manager;
 
+use credit_carbon_manager::certificate_nft;
 use credit_carbon_manager::credit_token;
 use credit_carbon_manager::minter_pass_nft;
 use iota::coin;
@@ -75,7 +76,9 @@ public fun consume_credit_token<T>(
     coin: coin::Coin<T>,
     ctx: &mut TxContext,
 ) {
-    credit_token::burn(credit_manager, coin, ctx);
+    let amount = credit_token::burn(credit_manager, coin, ctx);
+
+    certificate_nft::mint(sender(ctx), amount, ctx);
 }
 
 public fun update_credit_points(
