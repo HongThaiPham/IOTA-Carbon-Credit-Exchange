@@ -1,13 +1,7 @@
-import {
-  getFullnodeUrl,
-  IotaClient,
-  Network,
-  type CoinBalance,
-} from "@iota/iota-sdk/client";
+import { getFullnodeUrl, IotaClient, Network } from "@iota/iota-sdk/client";
 import { decodeIotaPrivateKey } from "@iota/iota-sdk/cryptography";
 import { Ed25519Keypair } from "@iota/iota-sdk/keypairs/ed25519";
 import { Inputs, Transaction } from "@iota/iota-sdk/transactions";
-import type { IotaObjectRef, IotaObjectResponse } from "@iota/iota-sdk/client";
 
 const { secretKey } = decodeIotaPrivateKey(process.env.PRIVATE_KEY!);
 const mainKeypair = Ed25519Keypair.fromSecretKey(secretKey);

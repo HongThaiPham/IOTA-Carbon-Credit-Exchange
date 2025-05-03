@@ -10,6 +10,8 @@ export default function useMintCarbonToken(nftObjectId: string) {
   const creditTokenManagerAddress = useNetworkVariable(
     "creditTokenManagerAddress"
   );
+  const creditTableAddress = useNetworkVariable("creditTableAddress");
+
   const queryClient = useQueryClient();
 
   const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction({
@@ -33,6 +35,7 @@ export default function useMintCarbonToken(nftObjectId: string) {
       tx.moveCall({
         target: `${carbonManagerPackageId}::credit_carbon_manager::mint_credit_token`,
         arguments: [
+          tx.object(creditTableAddress as string),
           tx.object(creditTokenManagerAddress as string),
           tx.object(nftObjectId),
           tx.pure.u64(amount),
