@@ -2,6 +2,7 @@ module credit_carbon_manager::credit_carbon_manager;
 
 use credit_carbon_manager::credit_token;
 use credit_carbon_manager::minter_pass_nft;
+use iota::coin;
 use iota::event;
 use iota::object_table;
 use iota::tx_context::sender;
@@ -57,7 +58,7 @@ public fun issue_minter_pass_nft(
 public fun mint_credit_token<T>(
     table: &mut CarbonCreditTable,
     credit_manager: &mut credit_token::CreditManager<T>,
-    minter_pass_nft: &mut minter_pass_nft::MinterPassNFT,
+    minter_pass_nft: &minter_pass_nft::MinterPassNFT,
     amount: u64,
     recipient: address,
     ctx: &mut TxContext,
@@ -67,6 +68,14 @@ public fun mint_credit_token<T>(
     let data: &mut CarbonCreditRecord = table.data.borrow_mut(id);
     data.minted_credit = data.minted_credit + amount;
     data.avaiable_credit = data.avaiable_credit - amount;
+}
+
+public fun consume_credit_token<T>(
+    credit_manager: &mut credit_token::CreditManager<T>,
+    coin: coin::Coin<T>,
+    ctx: &mut TxContext,
+) {
+    credit_token::burn(credit_manager, coin, ctx);
 }
 
 public fun update_credit_points(
@@ -97,4 +106,13 @@ public fun issue_credit_point_update_cap(
     ctx: &mut TxContext,
 ) {
     minter_pass_nft::issue_credit_point_update_cap(config, receiver, ctx);
+}
+
+public fun get_credit_point(
+    table: &mut CarbonCreditTable,
+    minter_pass_nft_id: ID,
+): &CarbonCreditRecord {
+    assert!(table.data.contains(minter_pass_nft_id), EINVALIDNFT);
+    let data: &CarbonCreditRecord = table.data.borrow(minter_pass_nft_id);
+    data
 }

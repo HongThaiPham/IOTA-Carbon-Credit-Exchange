@@ -22,6 +22,11 @@ public struct CarbonCreditMinted has copy, drop {
     recipient: address,
 }
 
+public struct CarbonCreditConsumed has copy, drop {
+    consumer: address,
+    amount: u64,
+}
+
 fun init(otw: CREDIT_TOKEN, ctx: &mut TxContext) {
     let (treasury_cap, coin_metadata) = coin::create_currency(
         otw,
@@ -59,4 +64,21 @@ public(package) fun mint<T>(
     });
 
     transfer::public_transfer(credit, recipient)
+}
+
+public(package) fun burn<T>(
+    credit_manager: &mut CreditManager<T>,
+    coin: coin::Coin<T>,
+    ctx: &TxContext,
+): u64 {
+    assert!(coin::value(&coin) > 0, EAMOUNTGT0);
+
+    let amount = coin::burn<T>(&mut credit_manager.treasury_cap, coin);
+
+    event::emit(CarbonCreditConsumed {
+        consumer: sender(ctx),
+        amount: amount,
+    });
+
+    amount
 }
