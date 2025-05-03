@@ -1,3 +1,4 @@
+"use client";
 import { ConnectButton } from "@iota/dapp-kit";
 import React from "react";
 

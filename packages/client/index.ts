@@ -193,59 +193,62 @@ const CREDIT_CARBON_TABLE_ADDRESS = process.env
       return;
     }
 
-    const [firstCoin, ...remains] = carbonCoins.data;
+    // const [firstCoin, ...remains] = carbonCoins.data;
 
     const tx = new Transaction();
 
-    tx.mergeCoins(
-      tx.object(
-        Inputs.ObjectRef({
-          objectId: firstCoin!.coinObjectId,
-          version: firstCoin!.version,
-          digest: firstCoin!.digest,
-        })
-      ),
-      remains.map((coin) =>
-        tx.object(
-          Inputs.ObjectRef({
-            objectId: coin.coinObjectId,
-            version: coin.version,
-            digest: coin.digest,
-          })
-        )
-      )
+    // tx.mergeCoins(
+    //   tx.object(
+    //     Inputs.ObjectRef({
+    //       objectId: firstCoin!.coinObjectId,
+    //       version: firstCoin!.version,
+    //       digest: firstCoin!.digest,
+    //     })
+    //   ),
+    //   remains.map((coin) =>
+    //     tx.object(
+    //       Inputs.ObjectRef({
+    //         objectId: coin.coinObjectId,
+    //         version: coin.version,
+    //         digest: coin.digest,
+    //       })
+    //     )
+    //   )
+    // );
+
+    const coinFitBalance = carbonCoins.data.find(
+      (coin) => BigInt(coin.balance) >= BigInt(3)
     );
 
-    const coin = tx.splitCoins(
-      tx.object(
-        Inputs.ObjectRef({
-          objectId: firstCoin!.coinObjectId,
-          version: firstCoin!.version,
-          digest: firstCoin!.digest,
-        })
-      ),
-      [3]
-    );
+    if (!coinFitBalance) {
+      throw new Error("No carbon coins found");
+    }
 
-    tx.transferObjects(
-      [coin],
-      tx.pure.address(caller.getPublicKey().toIotaAddress())
-    );
+    const coin = tx.splitCoins(coinFitBalance!.coinObjectId, [
+      tx.pure.u64(BigInt(3)),
+    ]);
+
+    // const coin = tx.splitCoins(
+    //   tx.object(
+    //     Inputs.ObjectRef({
+    //       objectId: firstCoin!.coinObjectId,
+    //       version: firstCoin!.version,
+    //       digest: firstCoin!.digest,
+    //     })
+    //   ),
+    //   [3]
+    // );
+
+    // tx.transferObjects(
+    //   [coin.[0]],
+    //   tx.pure.address(caller.getPublicKey().toIotaAddress())
+    // );
 
     tx.moveCall({
       package: CREDIT_CARBON_MANAGER_PACKAGE,
       module: "credit_carbon_manager",
       function: "consume_credit_token",
-      arguments: [
-        tx.object(CREDIT_TOKEN_MANAGER_ADDRESS),
-        tx.object(
-          Inputs.ObjectRef({
-            objectId: firstCoin!.coinObjectId,
-            version: firstCoin!.version,
-            digest: firstCoin!.digest,
-          })
-        ),
-      ],
+      arguments: [tx.object(CREDIT_TOKEN_MANAGER_ADDRESS), coin],
       typeArguments: [
         `${CREDIT_CARBON_MANAGER_PACKAGE}::credit_token::CREDIT_TOKEN`,
       ],
