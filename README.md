@@ -6,6 +6,10 @@ A web-based dashboard for managing, minting, and trading tokenized carbon credit
 
 The Carbon Credit Tokenization Dashboard is a web application that allows users to create, manage, mint, trade, and redeem tokenized carbon credits. The platform bridges traditional carbon credit registries with blockchain technology, creating a more liquid, transparent, and accessible market for carbon offset trading.
 
+## Demo 
+[![Watch the video](https://img.youtube.com/vi/tvpCcdSoAGY/0.jpg)](https://www.youtube.com/watch?v=tvpCcdSoAGY)
+
+
 ## Features
 
 ### Admin Features
