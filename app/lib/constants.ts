@@ -10,7 +10,7 @@ export const CREDIT_CARBON_TABLE_ADDRESS = process.env
 export const MINTER_NFT_TYPE = `${CREDIT_CARBON_MANAGER_PACKAGE}::minter_pass_nft::MinterPassNFT`;
 export const CREDIT_POINT_UPDATE_CAP_TYPE = `${CREDIT_CARBON_MANAGER_PACKAGE}::minter_pass_nft::CreditPointUpdateCap`;
 
-export const CARBON_TOKEN_TYPE = `0x2::coin::Coin<${CREDIT_CARBON_MANAGER_PACKAGE}::credit_token::CREDIT_TOKEN>`;
+export const CARBON_TOKEN_TYPE = `${CREDIT_CARBON_MANAGER_PACKAGE}::credit_token::CREDIT_TOKEN`;
 
 import { NavbarItemType } from "@/types/Navbar.type";
 
