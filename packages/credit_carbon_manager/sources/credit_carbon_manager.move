@@ -68,9 +68,10 @@ public fun mint_credit_token<T>(
 ) {
     assert!(amount > 0, EINVALIDNFT);
     let id = object::id(minter_pass_nft);
-    let data: &mut CarbonCreditRecord = table.data.borrow_mut(id);
 
     assert!(table.data.contains(id), ENOCREDITRECORD);
+
+    let data: &mut CarbonCreditRecord = table.data.borrow_mut(id);
 
     assert!(data.avaiable_credit >= amount, EINVALIDNFT);
 
