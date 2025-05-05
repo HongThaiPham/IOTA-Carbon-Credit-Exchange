@@ -10,6 +10,8 @@ use iota::tx_context::sender;
 
 #[error]
 const EINVALIDNFT: vector<u8> = b"Invalid Minter Pass NFT";
+#[error]
+const ENOCREDITRECORD: vector<u8> = b"Carbon Credit Record Not Found";
 
 public struct CarbonCreditRecord has key, store {
     id: UID,
@@ -64,9 +66,16 @@ public fun mint_credit_token<T>(
     recipient: address,
     ctx: &mut TxContext,
 ) {
-    credit_token::mint(credit_manager, minter_pass_nft, amount, recipient, ctx);
+    assert!(amount > 0, EINVALIDNFT);
     let id = object::id(minter_pass_nft);
     let data: &mut CarbonCreditRecord = table.data.borrow_mut(id);
+
+    assert!(table.data.contains(id), ENOCREDITRECORD);
+
+    assert!(data.avaiable_credit >= amount, EINVALIDNFT);
+
+    credit_token::mint(credit_manager, minter_pass_nft, amount, recipient, ctx);
+
     data.minted_credit = data.minted_credit + amount;
     data.avaiable_credit = data.avaiable_credit - amount;
 }
