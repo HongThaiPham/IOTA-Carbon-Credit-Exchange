@@ -15,7 +15,14 @@ const AppProvider: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <AppThemeProvider>
-        <IotaClientProvider networks={networkConfig} defaultNetwork="mainnet">
+        <IotaClientProvider
+          networks={networkConfig}
+          defaultNetwork={
+            process.env.NEXT_PUBLIC_NETWORK === "mainnet"
+              ? "mainnet"
+              : "testnet"
+          }
+        >
           <WalletProvider autoConnect>
             <Toaster richColors position="bottom-right" />
 

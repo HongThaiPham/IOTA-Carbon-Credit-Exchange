@@ -16,7 +16,7 @@ import {
 const { secretKey } = decodeIotaPrivateKey(process.env.PRIVATE_KEY!);
 const mainKeypair = Ed25519Keypair.fromSecretKey(secretKey);
 
-const iotaClient = new IotaClient({ url: "https://api.mainnet.iota.cafe" });
+const iotaClient = new IotaClient({ url: process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? "https://api.mainnet.iota.cafe" : getFullnodeUrl(Network.Testnet) });
 
 export async function updateQuota(id: string, value: number) {
   return supabaseServer
