@@ -16,15 +16,15 @@ export const stringCompact = (address?: string, chars = 4) => {
   return `${address.slice(0, chars)}...${address.slice(-chars)}`;
 };
 
-export const getExplorerUrl = (id?: string, network: string = "testnet") => {
+export const getExplorerUrl = (id?: string, network: string = "mainnet") => {
   if (!id) {
     return "";
   }
   const path = isValidIotaAddress(id)
     ? "address"
     : isValidTransactionDigest(id)
-    ? "txblock"
-    : "object";
+      ? "txblock"
+      : "object";
   if (network === "testnet") {
     return `https://explorer.rebased.iota.org/${path}/${id}?network=testnet`;
   }

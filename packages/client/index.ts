@@ -12,7 +12,7 @@ const { secretKey: otherSecretKey } = decodeIotaPrivateKey(
 const otherKeypair = Ed25519Keypair.fromSecretKey(otherSecretKey);
 
 // create a new IotaClient object pointing to the network you want to use
-const iotaClient = new IotaClient({ url: getFullnodeUrl(Network.Testnet) });
+const iotaClient = new IotaClient({ url: "https://api.mainnet.iota.cafe" });
 
 const CREDIT_CARBON_MANAGER_PACKAGE = process.env
   .CREDIT_CARBON_MANAGER_PACKAGE as string;

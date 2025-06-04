@@ -6,6 +6,7 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import useConsumeToken from "@/hooks/useConsumeToken";
+import { toast } from "sonner";
 
 const ConsumeForm = () => {
   const [amount, setAmount] = React.useState<number>(0);
@@ -14,8 +15,19 @@ const ConsumeForm = () => {
     if (amount <= 0) {
       return;
     }
-    await mutateAsync(amount);
-    setAmount(0);
+
+    toast.promise(mutateAsync(amount), {
+      loading: `Retiring ${amount} Carbon Token...`,
+      success: () => {
+        setAmount(0);
+        return `Successfully retired ${amount} Carbon Token!`;
+      },
+      error: (err) => {
+        return `Failed to retire Carbon Token: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`;
+      },
+    });
   };
   return (
     <div className="flex flex-col gap-4">

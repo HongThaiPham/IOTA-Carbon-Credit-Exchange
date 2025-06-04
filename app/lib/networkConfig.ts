@@ -23,10 +23,15 @@ const { networkConfig, useNetworkVariable, useNetworkVariables } =
     },
     testnet: {
       url: getFullnodeUrl("testnet"),
-      variables,
+      variables: {
+        carbonManagerPackageId: "0xbed892ac4bd5e15d184493e850e669e07dada810c3a15c5cce66fc16d9adf504",
+        minterPassConfigAddress: "0xc3dcf411ed53805da9e907b02336e47397be17ed272714853973a091a9962104",
+        creditTokenManagerAddress: "0x02b84bc04eadec4bab5946faf0cb4bf0666a65e0441d96d3f5a7c53b58aecab3",
+        creditTableAddress: "0x29cdd8f025fca0c50f0120a78764a7f17c3397decb0d470c44d0995ebf67fd16",
+      },
     },
     mainnet: {
-      url: getFullnodeUrl("mainnet"),
+      url: "https://api.mainnet.iota.cafe",
       variables,
     },
   });
